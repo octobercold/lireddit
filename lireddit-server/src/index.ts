@@ -13,11 +13,13 @@ import session from "express-session";
 import connectRedis from "connect-redis";
 import { ApolloServerPluginLandingPageGraphQLPlayground } from "apollo-server-core";
 import cors from "cors";
+//import { User } from "./entities/User";
 
 const main = async () => {
     const orm = await MikroORM.init(microConfig);
     //forked to avoid working on global database
     const emFork = orm.em.fork();
+    //await emFork.nativeDelete(User, {});
     await orm.getMigrator().up();
 
     const RedisStore = connectRedis(session);

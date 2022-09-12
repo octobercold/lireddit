@@ -54,7 +54,7 @@ const main = async () => {
             resolvers: [HelloResolver, PostResolver, UserResolver],
             validate: false,
         }),
-        context: ({ req, res }) => ({ em: emFork, req, res }),
+        context: ({ req, res }) => ({ em: emFork, req, res, redis }),
         plugins: [ApolloServerPluginLandingPageGraphQLPlayground()],
     });
 

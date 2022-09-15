@@ -11,13 +11,12 @@ import {
 } from "type-graphql";
 import { User } from "../entities/User";
 import argon2 from "argon2";
-import { EntityManager } from "@mikro-orm/postgresql";
 import { COOKIE_NAME, FORGET_PASSWORD_PREFIX } from "../constants";
 import { UsernamePasswordInput } from "./UsernamePasswordInput";
 import { validateRegister } from "../utils/validateRegister";
 import { sendEmail } from "../utils/sendEmail";
 import { v4 } from "uuid";
-import { DataSource } from "typeorm";
+import { dataSource } from "../dataSource";
 
 @ObjectType()
 class FieldError {
@@ -139,20 +138,18 @@ export class UserResolver {
         const hashedPassword = await argon2.hash(options.password);
         let user;
         try {
-            await dataSource.createQueryBuilder();
-            const result = await (em as EntityManager)
-                .createQueryBuilder(User)
-                .getKnexQuery()
-                .insert({
+            const result = await dataSource
+                .createQueryBuilder()
+                .insert()
+                .into(User)
+                .values({
                     username: options.username,
                     email: options.email,
                     password: hashedPassword,
-                    created_at: new Date(),
-                    updated_at: new Date(),
                 })
-                .returning("*");
-            user = result[0];
-            // await em.persistAndFlush(user);
+                .returning("*")
+                .execute();
+            user = result.raw[0];
         } catch (err) {
             //duplicate username error
             if (err.code === "23505") {
@@ -179,22 +176,19 @@ export class UserResolver {
     }
 
     @Mutation(() => UserResponse)
-    async deleteUser(
-        @Arg("id") id: number,
-        @Ctx() { em }: MyContext
-    ): Promise<UserResponse> {
-        const user = await em.findOne(User, { id });
+    async deleteUser(@Arg("id") id: number): Promise<UserResponse> {
+        const user = await User.findOneBy({ id: id });
         if (!user) {
             return {
                 errors: [
                     {
                         field: "id",
-                        message: "use with that id doesn't exist",
+                        message: "user with that id doesn't exist",
                     },
                 ],
             };
         }
-        await em.nativeDelete(User, { id });
+        await User.delete({ id: id });
         return { user };
     }
 
@@ -202,10 +196,9 @@ export class UserResolver {
     async login(
         @Arg("usernameOrEmail") usernameOrEmail: string,
         @Arg("password") password: string,
-        @Ctx() { em, req }: MyContext
+        @Ctx() { req }: MyContext
     ): Promise<UserResponse> {
-        const user = await em.findOne(
-            User,
+        const user = await User.findOneBy(
             usernameOrEmail.includes("@")
                 ? { email: usernameOrEmail }
                 : { username: usernameOrEmail }

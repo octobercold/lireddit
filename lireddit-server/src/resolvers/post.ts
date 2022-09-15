@@ -1,7 +1,6 @@
 import "reflect-metadata";
-import { Resolver, Query, Ctx, Arg, Mutation } from "type-graphql";
+import { Resolver, Query, Arg, Mutation } from "type-graphql";
 import { Post } from "../entities/post";
-import { MyContext } from "../types";
 
 @Resolver()
 export class PostResolver {
@@ -12,7 +11,7 @@ export class PostResolver {
 
     @Query(() => Post, { nullable: true })
     post(@Arg("id") id: number): Promise<Post | null> {
-        return Post.findOneBy({ id: id }); // test if it works
+        return Post.findOneBy({ id: id });
     }
 
     @Mutation(() => Post)

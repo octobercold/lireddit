@@ -22,6 +22,7 @@ const main = async () => {
         .catch((err) => {
             console.error("Error during Data Source initialization", err);
         });
+
     const RedisStore = connectRedis(session);
     const redis = new Redis();
 

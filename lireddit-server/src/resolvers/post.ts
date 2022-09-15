@@ -1,6 +1,8 @@
 import "reflect-metadata";
-import { Resolver, Query, Arg, Mutation } from "type-graphql";
+import { MyContext } from "src/types";
+import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
 import { Post } from "../entities/post";
+import { PostInput } from "./inputTypes";
 
 @Resolver()
 export class PostResolver {
@@ -15,9 +17,14 @@ export class PostResolver {
     }
 
     @Mutation(() => Post)
-    async createPost(@Arg("title") title: string): Promise<Post> {
-        //2 sql queries = suboptimal
-        return Post.create({ title }).save();
+    async createPost(
+        @Arg("input") input: PostInput,
+        @Ctx() { req }: MyContext
+    ): Promise<Post> {
+        if (!req.session.userId) {
+            throw new Error("not authenticated");
+        }
+        return Post.create({ ...input, creatorId: req.session.userId }).save();
     }
 
     @Mutation(() => Post, { nullable: true })

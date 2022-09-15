@@ -3,7 +3,7 @@ import React from "react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 
-export const NavBar: React.FC = () => {
+const NavBar: React.FC = () => {
     const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
     const [{ data, fetching }] = useMeQuery();
     let body = null;
@@ -44,3 +44,5 @@ export const NavBar: React.FC = () => {
         </Flex>
     );
 };
+
+export default NavBar;

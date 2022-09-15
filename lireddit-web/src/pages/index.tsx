@@ -1,4 +1,4 @@
-import { NavBar } from "../components/NavBar";
+import NavBar from "../components/NavBar";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import { usePostsQuery } from "../generated/graphql";

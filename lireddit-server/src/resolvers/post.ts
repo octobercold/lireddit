@@ -1,6 +1,14 @@
 import "reflect-metadata";
+import { isAuth } from "../middleware/isAuth";
 import { MyContext } from "src/types";
-import { Resolver, Query, Arg, Mutation, Ctx } from "type-graphql";
+import {
+    Resolver,
+    Query,
+    Arg,
+    Mutation,
+    Ctx,
+    UseMiddleware,
+} from "type-graphql";
 import { Post } from "../entities/post";
 import { PostInput } from "./inputTypes";
 
@@ -17,17 +25,16 @@ export class PostResolver {
     }
 
     @Mutation(() => Post)
+    @UseMiddleware(isAuth)
     async createPost(
         @Arg("input") input: PostInput,
         @Ctx() { req }: MyContext
     ): Promise<Post> {
-        if (!req.session.userId) {
-            throw new Error("not authenticated");
-        }
         return Post.create({ ...input, creatorId: req.session.userId }).save();
     }
 
     @Mutation(() => Post, { nullable: true })
+    @UseMiddleware(isAuth)
     async updatePost(
         @Arg("id") id: number,
         @Arg("title", () => String, { nullable: true }) title: string

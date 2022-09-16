@@ -10,7 +10,6 @@ const NavBar: React.FC = () => {
     if (fetching) {
         body = null;
     } else if (!data.me) {
-        console.log("data: ", data);
         body = (
             <>
                 <NextLink href="/login">

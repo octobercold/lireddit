@@ -7,9 +7,11 @@ import { useRouter } from "next/router";
 import { withUrqlClient } from "next-urql";
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { Layout } from "../components/Layout";
+import { useIsAuth } from "../utils/useIsAuth";
 
 const CreatePost: React.FC = () => {
     const router = useRouter();
+    useIsAuth();
     const [, createPost] = useCreatePostMutation();
     return (
         <Layout variant="small">

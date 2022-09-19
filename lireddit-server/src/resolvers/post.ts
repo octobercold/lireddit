@@ -9,13 +9,20 @@ import {
     Ctx,
     UseMiddleware,
     Int,
+    FieldResolver,
+    Root,
 } from "type-graphql";
 import { Post } from "../entities/post";
 import { PostInput } from "./inputTypes";
 import { dataSource } from "../dataSource";
 
-@Resolver()
+@Resolver(Post)
 export class PostResolver {
+    @FieldResolver(() => String)
+    textSnippet(@Root() root: Post) {
+        return root.text.slice(0, 50);
+    }
+
     @Query(() => [Post])
     async posts(
         @Arg("limit", () => Int) limit: number,

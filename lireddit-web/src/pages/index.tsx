@@ -2,19 +2,39 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import { usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
-import { Box, Heading, Link, Stack, Text } from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    Flex,
+    Heading,
+    Link,
+    Stack,
+    Text,
+} from "@chakra-ui/react";
 import NextLink from "next/link";
+import { useState } from "react";
 
 const Index = () => {
-    const [{ data }] = usePostsQuery({ variables: { limit: 10 } });
+    const [variables, setVariables] = useState({ limit: 10, cursor: null });
+    const [{ data, fetching }] = usePostsQuery({ variables });
+
+    console.log(variables);
+
+    if (!fetching && !data) {
+        return <div>query failed or there is no data to display</div>;
+    }
+
     return (
         <Layout>
             <>
-                <NextLink href="/create-post">
-                    <Link>create post</Link>
-                </NextLink>
+                <Flex align="center">
+                    <Heading>Fake Reddit</Heading>
+                    <NextLink href="/create-post">
+                        <Link ml="auto">create post</Link>
+                    </NextLink>
+                </Flex>
                 <br />
-                {!data ? (
+                {!data && fetching ? (
                     <div>loading...</div>
                 ) : (
                     <Stack spacing={8}>
@@ -26,6 +46,24 @@ const Index = () => {
                         ))}
                     </Stack>
                 )}
+                {data ? (
+                    <Flex>
+                        <Button
+                            onClick={() =>
+                                setVariables({
+                                    limit: 10,
+                                    cursor: data.posts[data.posts.length - 1]
+                                        .createdAt,
+                                })
+                            }
+                            isLoading={fetching}
+                            m="auto"
+                            my={8}
+                        >
+                            load more
+                        </Button>
+                    </Flex>
+                ) : null}
             </>
         </Layout>
     );

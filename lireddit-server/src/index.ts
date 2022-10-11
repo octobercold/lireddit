@@ -14,7 +14,7 @@ import cors from "cors";
 import { dataSource } from "./dataSource";
 
 const main = async () => {
-    dataSource
+    await dataSource
         .initialize()
         .then(() => {
             console.log("Data Source has been initialized!");
@@ -22,6 +22,9 @@ const main = async () => {
         .catch((err) => {
             console.error("Error during Data Source initialization", err);
         });
+
+    //await dataSource.runMigrations();
+    //await Post.delete({});
 
     const RedisStore = connectRedis(session);
     const redis = new Redis();

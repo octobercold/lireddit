@@ -1,4 +1,4 @@
-import { UsernamePasswordInput } from "../resolvers/inputTypes";
+import { UsernamePasswordInput } from "../resolvers/graphqlTypes";
 
 export const validateRegister = (options: UsernamePasswordInput) => {
     if (!options.email.includes("@")) {

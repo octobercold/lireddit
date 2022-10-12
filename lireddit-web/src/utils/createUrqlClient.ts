@@ -45,11 +45,6 @@ export const cursorPagination = (): Resolver => {
             return undefined;
         }
         info.partial = !data;
-        console.log({
-            __typename: "PaginatedPosts",
-            hasMore,
-            posts: data,
-        });
 
         return {
             __typename: "PaginatedPosts",

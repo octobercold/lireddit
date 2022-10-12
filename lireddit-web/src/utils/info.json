@@ -1,0 +1,47 @@
+{
+    store: Store {
+      keyOfField: [Function: keyOfField],
+      resolveFieldByKey: [Function: resolve],
+      resolvers: { Query: [Object] },
+      optimisticMutations: {},
+      keys: {},
+      updates: { Mutation: [Object], Subscription: {} },
+      rootFields: {
+        query: 'Query',
+        mutation: 'Mutation',
+        subscription: 'Subscription'
+      },
+      rootNames: {
+        Query: 'query',
+        Mutation: 'mutation',
+        Subscription: 'subscription'
+      },
+      data: {
+        defer: true,
+        gc: Set(0) {},
+        persist: Set(0) {},
+        queryRootKey: 'Query',
+        refCount: [Map],
+        refLock: Map(0) {},
+        links: [Object],
+        records: [Object],
+        deferredKeys: Set(0) {},
+        commutativeKeys: Set(0) {},
+        optimisticOrder: [],
+        storage: null
+      }
+    },
+    variables: { limit: 10, cursor: null },
+    fragments: {},
+    parent: {
+      posts: { hasMore: false, posts: [Array], __typename: 'PaginatedPosts' }
+    },
+    parentTypeName: 'Query',
+    parentKey: 'Query',
+    parentFieldKey: 'Query.posts({"limit":10})',
+    fieldName: 'posts',
+    error: undefined,
+    partial: false,
+    optimistic: false,
+    __internal: { path: [ 'posts' ], errorMap: undefined }
+  }

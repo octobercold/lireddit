@@ -37,7 +37,7 @@ export interface PaginationParams {
 }
 
 export const cursorPagination = (): Resolver => {
-    return (_parent, fieldArgs, cache, info) => {
+    return (_parent, _fieldArgs, cache, info) => {
         const { parentFieldKey, fieldName } = info;
         const data = cache.resolve(parentFieldKey, fieldName) as string[];
         const hasMore = cache.resolve(parentFieldKey, "hasMore");
@@ -114,6 +114,9 @@ export const createUrqlClient = (ssrExchange: SSRExchange) => ({
     exchanges: [
         dedupExchange,
         cacheExchange({
+            keys: {
+                PaginatedPosts: () => null,
+            },
             resolvers: {
                 Query: {
                     posts: cursorPagination(),

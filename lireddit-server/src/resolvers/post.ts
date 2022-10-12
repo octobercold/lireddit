@@ -38,9 +38,7 @@ export class PostResolver {
         @Arg("limit", () => Int) limit: number,
         @Arg("cursor", () => String, { nullable: true }) cursor: string | null
     ): Promise<PaginatedPosts> {
-        console.log("limit: ", limit);
         const realLimit = Math.min(50, limit);
-        console.log("realLimit: ", realLimit);
         const realLimitPlusOne = realLimit + 1;
         const qb = dataSource
             .getRepository(Post)
@@ -55,8 +53,6 @@ export class PostResolver {
         }
 
         const posts = await qb.getMany();
-        console.log("posts length: ", posts.length);
-        console.log("hasMore: ", posts.length === realLimitPlusOne);
 
         return {
             posts: posts.slice(0, realLimit),

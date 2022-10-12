@@ -38,31 +38,24 @@ export interface PaginationParams {
 
 export const cursorPagination = (): Resolver => {
     return (_parent, fieldArgs, cache, info) => {
-        const { parentKey: entityKey, fieldName } = info;
-        const allFields = cache.inspectFields(entityKey);
-        const fieldInfos = allFields.filter(
-            (info) => info.fieldName === fieldName
-        );
-        console.log("allFields: ", allFields);
-        const size = fieldInfos.length;
-        if (size === 0) {
+        const { parentFieldKey, fieldName } = info;
+        const data = cache.resolve(parentFieldKey, fieldName) as string[];
+        const hasMore = cache.resolve(parentFieldKey, "hasMore");
+        if (!data) {
             return undefined;
         }
-        console.log("fieldArgs: ", fieldArgs);
-        const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-        console.log("key i created: ", fieldKey);
-        const isInCache = cache.resolve(entityKey, fieldKey);
-        console.log("isInCache: ", isInCache);
-        info.partial = !isInCache;
-        console.log("info partial: ", info.partial);
-
-        const results: string[] = [];
-        fieldInfos.forEach((fi) => {
-            const data = cache.resolve(entityKey, fi.fieldKey) as string[];
-            results.push(...data);
+        info.partial = !data;
+        console.log({
+            __typename: "PaginatedPosts",
+            hasMore,
+            posts: data,
         });
 
-        return results;
+        return {
+            __typename: "PaginatedPosts",
+            hasMore,
+            posts: data,
+        };
         //     const visited = new Set();
         //     let result: NullArray<string> = [];
         //     let prevOffset: number | null = null;

@@ -15,7 +15,11 @@ import NextLink from "next/link";
 import { useState } from "react";
 
 const Index = () => {
-    const [variables, setVariables] = useState({ limit: 10, cursor: null });
+    const POST_PAGE_LENGTH = 33;
+    const [variables, setVariables] = useState({
+        limit: POST_PAGE_LENGTH,
+        cursor: null,
+    });
     const [{ data, fetching }] = usePostsQuery({ variables });
 
     console.log(variables);
@@ -51,7 +55,7 @@ const Index = () => {
                         <Button
                             onClick={() =>
                                 setVariables({
-                                    limit: 10,
+                                    limit: variables.limit,
                                     cursor: data.posts.posts[
                                         data.posts.posts.length - 1
                                     ].createdAt,

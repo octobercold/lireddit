@@ -1,4 +1,5 @@
 import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
+import { simplePagination } from "@urql/exchange-graphcache/extras";
 import {
     dedupExchange,
     Exchange,
@@ -30,78 +31,67 @@ const errorExchange: Exchange =
         );
     };
 
-export type MergeMode = "before" | "after";
-
-export interface PaginationParams {
-    cursorArgument?: string;
-}
-
 export const cursorPagination = (): Resolver => {
-    return (_parent, _fieldArgs, cache, info) => {
-        const { parentFieldKey, fieldName } = info;
-        const data = cache.resolve(parentFieldKey, fieldName) as string[];
-        const hasMore = cache.resolve(parentFieldKey, "hasMore");
-        if (!data) {
+    return (_parent, fieldArgs, cache, info) => {
+        //ugly implementation that works
+        const { parentKey: entityKey, fieldName } = info;
+        const allFields = cache.inspectFields(entityKey);
+        console.log("all fields: ", allFields);
+
+        const fieldInfos = allFields.filter(
+            (info) => info.fieldName === fieldName
+        );
+        console.log("filtered fields infos: ", fieldInfos);
+
+        const size = fieldInfos.length;
+        if (size === 0) {
             return undefined;
         }
-        info.partial = !data;
+
+        const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
+        console.log("fieldKey: ", fieldKey);
+
+        const isItInTheCache = cache.resolve(
+            cache.resolve(entityKey, fieldKey) as string,
+            fieldName
+        );
+
+        info.partial = !isItInTheCache;
+        console.log("isItInTheCache: ", isItInTheCache);
+
+        let hasMore = true;
+        const result: string[] = [];
+        fieldInfos.forEach((fi) => {
+            const key = cache.resolve(entityKey, fi.fieldKey) as string;
+            const data = cache.resolve(key, fieldName) as string[];
+            const _hasMore = cache.resolve(key, "hasMore");
+            if (!_hasMore) {
+                hasMore = _hasMore as boolean;
+            }
+            result.push(...data);
+            console.log("data : ", data);
+        });
 
         return {
             __typename: "PaginatedPosts",
             hasMore,
-            posts: data,
+            posts: result,
         };
-        //     const visited = new Set();
-        //     let result: NullArray<string> = [];
-        //     let prevOffset: number | null = null;
 
-        //     for (let i = 0; i < size; i++) {
-        //         const { fieldKey, arguments: args } = fieldInfos[i];
-        //         if (args === null || !compareArgs(fieldArgs, args)) {
-        //             continue;
-        //         }
+        // better implementation that doesn't work for some reason
+        // const data = cache.resolve(parentFieldKey, fieldName) as string[];
+        // const hasMore = cache.resolve(parentFieldKey, "hasMore");
 
-        //         const links = cache.resolve(entityKey, fieldKey) as string[];
-        //         const currentOffset = args[cursorArgument];
+        // info.partial = !data;
 
-        //         if (
-        //             links === null ||
-        //             links.length === 0 ||
-        //             typeof currentOffset !== "number"
-        //         ) {
-        //             continue;
-        //         }
+        // results = [...results, ...data];
+        // console.log("data: ", data);
+        // console.log("results: ", results);
 
-        //         const tempResult: NullArray<string> = [];
-
-        //         for (let j = 0; j < links.length; j++) {
-        //             const link = links[j];
-        //             if (visited.has(link)) continue;
-        //             tempResult.push(link);
-        //             visited.add(link);
-        //         }
-
-        //         if (
-        //             (!prevOffset || currentOffset > prevOffset) ===
-        //             (mergeMode === "after")
-        //         ) {
-        //             result = [...result, ...tempResult];
-        //         } else {
-        //             result = [...tempResult, ...result];
-        //         }
-
-        //         prevOffset = currentOffset;
-        //     }
-
-        //     const hasCurrentPage = cache.resolve(entityKey, fieldName, fieldArgs);
-        //     if (hasCurrentPage) {
-        //         return result;
-        //     } else if (!(info as any).store.schema) {
-        //         return undefined;
-        //     } else {
-        //         info.partial = true;
-        //         return result;
-        //     }
+        // return {
+        //     __typename: "PaginatedPosts",
+        //     hasMore,
+        //     posts: results,
         // };
     };
 };

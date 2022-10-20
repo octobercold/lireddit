@@ -15,14 +15,11 @@ import NextLink from "next/link";
 import { useState } from "react";
 
 const Index = () => {
-    const POST_PAGE_LENGTH = 33;
     const [variables, setVariables] = useState({
-        limit: POST_PAGE_LENGTH,
+        limit: 10,
         cursor: null,
     });
     const [{ data, fetching }] = usePostsQuery({ variables });
-
-    console.log(variables);
 
     if (!fetching && !data) {
         return <div>query failed or there is no data to display</div>;

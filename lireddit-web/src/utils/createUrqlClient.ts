@@ -36,12 +36,10 @@ export const cursorPagination = (): Resolver => {
         //ugly implementation that works
         const { parentKey: entityKey, fieldName } = info;
         const allFields = cache.inspectFields(entityKey);
-        console.log("all fields: ", allFields);
 
         const fieldInfos = allFields.filter(
             (info) => info.fieldName === fieldName
         );
-        console.log("filtered fields infos: ", fieldInfos);
 
         const size = fieldInfos.length;
         if (size === 0) {
@@ -49,7 +47,6 @@ export const cursorPagination = (): Resolver => {
         }
 
         const fieldKey = `${fieldName}(${stringifyVariables(fieldArgs)})`;
-        console.log("fieldKey: ", fieldKey);
 
         const isItInTheCache = cache.resolve(
             cache.resolve(entityKey, fieldKey) as string,
@@ -57,7 +54,6 @@ export const cursorPagination = (): Resolver => {
         );
 
         info.partial = !isItInTheCache;
-        console.log("isItInTheCache: ", isItInTheCache);
 
         let hasMore = true;
         const result: string[] = [];
@@ -69,7 +65,6 @@ export const cursorPagination = (): Resolver => {
                 hasMore = _hasMore as boolean;
             }
             result.push(...data);
-            console.log("data : ", data);
         });
 
         return {

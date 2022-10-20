@@ -53,33 +53,19 @@ export class PostResolver {
             'id', u.id,
             'username', u.username,
             'email', u.email,
-            'createdAt', u.createdAt,
-            'updatedAt', u.updatedAt,
+            'createdAt', u."createdAt",
+            'updatedAt', u."updatedAt"
             ) creator
         from post p
         inner join public.user u on u.id = p."creatorId"
-        ${cursor ? ` where p."createdAt" < $2` : ""}
+        ${cursor ? `where p."createdAt" < $2` : ""}
         order by p."createdAt" DESC
         limit $1
         `,
             replacements
         );
 
-        // const qb = dataSource
-        //     .getRepository(Post)
-        //     .createQueryBuilder("p")
-        //     .innerJoinAndSelect("p.creator", "u", 'u.id = p."creatorId"')
-        //     .orderBy('p."createdAt"', "DESC")
-        //     .take(realLimitPlusOne);
-
-        // if (cursor) {
-        //     qb.where('p."createdAt" < :cursor', {
-        //         cursor: new Date(parseInt(cursor)),
-        //     });
-        // }
-
-        // const posts = await qb.getMany();
-        //console.log("posts: ", posts);
+        console.log("posts: ", posts);
 
         return {
             posts: posts.slice(0, realLimit),

@@ -24,12 +24,12 @@ export class Post extends BaseEntity {
     @Column()
     creatorId: number;
 
-    @Field()
+    @Field(() => User)
     @ManyToOne(() => User, (user) => user.posts)
     creator: User;
 
-    // @OneToMany(() => Updoot, (updoot) => updoot.post)
-    // updoots: Updoot[];
+    @OneToMany(() => Updoot, (updoot) => updoot.post)
+    updoots: Updoot[];
 
     @Field()
     @Column()

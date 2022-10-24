@@ -17,7 +17,6 @@ import {
 import { Post } from "../entities/post";
 import { PostInput } from "./graphqlTypes";
 import { dataSource } from "../dataSource";
-import { Updoot } from "../entities/Updoot";
 
 @ObjectType({ isAbstract: true })
 class PaginatedPosts {
@@ -44,18 +43,24 @@ export class PostResolver {
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
         const { userId } = req.session;
-        await Updoot.insert({
-            userId,
-            postId,
-            value: realValue,
-        });
+        // await Updoot.insert({
+        //     userId,
+        //     postId,
+        //     value: realValue,
+        // });
         await dataSource.query(
             `
-            update post p
-            set p.points = posts + $1
-            where p.id = $2
-            `,
-            [realValue, postId]
+            START TRANSACTION;
+
+            insert into updoot ("userId", "postId", "value")
+            values (${userId},${postId},${realValue});
+
+            update post
+            set points = points + ${realValue}
+            where id = ${postId};
+
+            COMMIT;
+            `
         );
         return true;
     }

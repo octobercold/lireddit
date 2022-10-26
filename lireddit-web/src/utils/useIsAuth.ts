@@ -1,13 +1,26 @@
 import { useRouter } from "next/router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMeQuery } from "../generated/graphql";
 
 export const useIsAuth = () => {
+    const [calledPush, setCalledPush] = useState(false);
+
     const [{ data, fetching }] = useMeQuery();
     const router = useRouter();
+
+    console.log("fetching: ", fetching);
+    console.log("data: ", data);
+
     useEffect(() => {
-        if (!fetching && !data?.me) {
+        if (!calledPush && !fetching && !data?.me) {
+            let calledPushLatest;
+            setCalledPush((latest) => {
+                calledPushLatest = latest;
+                return latest;
+            });
+            if (calledPushLatest) return;
+            setCalledPush(true);
             router.replace("/login?next=" + router.pathname);
         }
-    }, [fetching, data, router]);
+    }, [fetching, data]);
 };

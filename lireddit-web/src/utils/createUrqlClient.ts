@@ -1,5 +1,4 @@
 import { cacheExchange, Resolver } from "@urql/exchange-graphcache";
-import { simplePagination } from "@urql/exchange-graphcache/extras";
 import {
     dedupExchange,
     Exchange,
@@ -72,22 +71,6 @@ export const cursorPagination = (): Resolver => {
             hasMore,
             posts: result,
         };
-
-        // better implementation that doesn't work for some reason
-        // const data = cache.resolve(parentFieldKey, fieldName) as string[];
-        // const hasMore = cache.resolve(parentFieldKey, "hasMore");
-
-        // info.partial = !data;
-
-        // results = [...results, ...data];
-        // console.log("data: ", data);
-        // console.log("results: ", results);
-
-        // return {
-        //     __typename: "PaginatedPosts",
-        //     hasMore,
-        //     posts: results,
-        // };
     };
 };
 
@@ -109,7 +92,16 @@ export const createUrqlClient = (ssrExchange: SSRExchange) => ({
             },
             updates: {
                 Mutation: {
-                    logout: (_result, args, cache, info) => {
+                    createPost: (_result, _args, cache) => {
+                        console.log("before invalidation");
+                        console.log(cache.inspectFields("Query"));
+                        cache.invalidate("Query", "posts", {
+                            limit: 15,
+                        });
+                        console.log(cache.inspectFields("Query"));
+                        console.log("after invalidation");
+                    },
+                    logout: (_result, _args, cache) => {
                         betterUpdateQuery<LogoutMutation, MeQuery>(
                             cache,
                             { query: MeDocument },
@@ -117,7 +109,7 @@ export const createUrqlClient = (ssrExchange: SSRExchange) => ({
                             () => ({ me: null })
                         );
                     },
-                    login: (_result, args, cache, info) => {
+                    login: (_result, _args, cache) => {
                         betterUpdateQuery<LoginMutation, MeQuery>(
                             cache,
                             { query: MeDocument },
@@ -133,7 +125,7 @@ export const createUrqlClient = (ssrExchange: SSRExchange) => ({
                             }
                         );
                     },
-                    register: (_result, args, cache, info) => {
+                    register: (_result, _args, cache) => {
                         betterUpdateQuery<RegisterMutation, MeQuery>(
                             cache,
                             { query: MeDocument },

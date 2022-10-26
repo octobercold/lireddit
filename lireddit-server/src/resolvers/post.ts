@@ -14,7 +14,7 @@ import {
     ObjectType,
     Field,
 } from "type-graphql";
-import { Post } from "../entities/post";
+import { Post } from "../entities/Post";
 import { PostInput } from "./graphqlTypes";
 import { dataSource } from "../dataSource";
 
@@ -43,11 +43,7 @@ export class PostResolver {
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
         const { userId } = req.session;
-        // await Updoot.insert({
-        //     userId,
-        //     postId,
-        //     value: realValue,
-        // });
+
         await dataSource.query(
             `
             START TRANSACTION;

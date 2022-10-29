@@ -17,12 +17,14 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
         <Flex direction="column" alignItems="center" mr={4}>
             <IconButton
                 onClick={async () => {
+                    if (post.voteStatus === 1) return;
                     setLoadingState("updoot-loading");
                     await vote({ postId: post.id, value: 1 });
                     setLoadingState("not-loading");
                 }}
                 isLoading={loadingState === "updoot-loading"}
-                variant="outline"
+                variant="ghost"
+                color={post.voteStatus === 1 ? "green" : undefined}
                 aria-label="Upvote"
                 fontSize="24px"
                 size="sm"
@@ -31,12 +33,14 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
             <Text fontSize={20}>{post.points}</Text>
             <IconButton
                 onClick={async () => {
+                    if (post.voteStatus === -1) return;
                     setLoadingState("downdoot-loading");
                     await vote({ postId: post.id, value: -1 });
                     setLoadingState("not-loading");
                 }}
                 isLoading={loadingState === "downdoot-loading"}
-                variant="outline"
+                variant="ghost"
+                color={post.voteStatus === -1 ? "red" : undefined}
                 aria-label="Downvote"
                 fontSize="24px"
                 size="sm"

@@ -8,9 +8,6 @@ export const useIsAuth = () => {
     const [{ data, fetching }] = useMeQuery();
     const router = useRouter();
 
-    console.log("fetching: ", fetching);
-    console.log("data: ", data);
-
     useEffect(() => {
         if (!calledPush && !fetching && !data?.me) {
             let calledPushLatest;

@@ -8,20 +8,15 @@ const NavBar: React.FC = () => {
     const [{ data, fetching }, resendMeQuery] = useMeQuery();
     const [hasMounted, setHasMounted] = useState(false);
 
+    let body = null;
+
     useEffect(() => {
         if (!hasMounted && !fetching && !data.me) {
-            // let latestState;
-            // setHasMounted((latest) => {
-            //     latestState = latest;
-            //     return latest;
-            // });
-            // if (latestState) return;
             setHasMounted(true);
             resendMeQuery({ requestPolicy: "network-only" });
         }
     }, [hasMounted, resendMeQuery, fetching, data]);
 
-    let body = null;
     if (!data.me) {
         body = (
             <>
@@ -33,7 +28,7 @@ const NavBar: React.FC = () => {
                 </NextLink>
             </>
         );
-    } else {
+    } else if (data.me) {
         body = (
             <Flex>
                 <Box mr={2}>{data.me.username}</Box>

@@ -44,9 +44,13 @@ export class PostResolver {
         const isUpdoot = value !== -1;
         const realValue = isUpdoot ? 1 : -1;
         const { userId } = req.session;
-        const updoot = await Updoot.findOne({ where: { postId, userId } });
+        const updoot = await Updoot.findOneBy({
+            postId: postId,
+            userId: userId,
+        });
 
         if (updoot && updoot.value !== realValue) {
+            //if user did vote but they want to change their vote
             await dataSource.transaction(async (tm) => {
                 //2* realValue to account for previous vote
                 await tm.query(
@@ -67,6 +71,7 @@ export class PostResolver {
                 );
             });
         } else if (!updoot) {
+            //user did not vote
             await dataSource.transaction(async (tm) => {
                 await tm.query(
                     `

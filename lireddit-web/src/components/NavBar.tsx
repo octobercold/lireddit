@@ -5,19 +5,19 @@ import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 
 const NavBar: React.FC = () => {
     const [{ fetching: logoutFetching }, logout] = useLogoutMutation();
-    const [{ data, fetching }, resendMeQuery] = useMeQuery();
-    const [hasMounted, setHasMounted] = useState(false);
+    const [{ data, fetching }] = useMeQuery();
 
     let body = null;
 
-    useEffect(() => {
-        if (!hasMounted && !fetching && !data.me) {
-            setHasMounted(true);
-            resendMeQuery({ requestPolicy: "network-only" });
-        }
-    }, [hasMounted, resendMeQuery, fetching, data]);
-
-    if (!data.me) {
+    // useEffect(() => {
+    //     if (!hasMounted && !fetching && !data.me) {
+    //         setHasMounted(true);
+    //         resendMeQuery({ requestPolicy: "network-only" });
+    //     }
+    // }, [hasMounted, resendMeQuery, fetching, data]);
+    if (fetching) {
+        return body;
+    } else if (!data?.me) {
         body = (
             <>
                 <NextLink href="/login">
@@ -28,7 +28,7 @@ const NavBar: React.FC = () => {
                 </NextLink>
             </>
         );
-    } else if (data.me) {
+    } else if (data?.me) {
         body = (
             <Flex>
                 <Box mr={2}>{data.me.username}</Box>

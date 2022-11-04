@@ -37,7 +37,6 @@ export const UpdootSection: React.FC<UpdootSectionProps> = ({ post }) => {
                     if (post.voteStatus === -1) return;
                     setLoadingState("downdoot-loading");
                     await vote({ postId: post.id, value: -1 });
-                    console.log("post voteStatus: ", post.voteStatus);
                     setLoadingState("not-loading");
                 }}
                 isLoading={loadingState === "downdoot-loading"}

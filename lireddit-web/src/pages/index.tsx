@@ -1,12 +1,13 @@
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
-import { usePostsQuery } from "../generated/graphql";
+import { usePostsQuery, useDeletePostMutation } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import {
     Box,
     Button,
     Flex,
     Heading,
+    IconButton,
     Link,
     Stack,
     Text,
@@ -14,6 +15,7 @@ import {
 import NextLink from "next/link";
 import { useState } from "react";
 import { UpdootSection } from "../components/UpdootSection";
+import { DeleteIcon } from "@chakra-ui/icons";
 
 const Index = () => {
     const [variables, setVariables] = useState({
@@ -21,6 +23,8 @@ const Index = () => {
         cursor: null,
     });
     const [{ data, fetching }] = usePostsQuery({ variables });
+    const [{ fetching: deletePostFetching }, deletePost] =
+        useDeletePostMutation();
 
     if (!fetching && !data) {
         return <div>query failed or there is no data to display</div>;
@@ -29,13 +33,7 @@ const Index = () => {
     return (
         <Layout>
             <>
-                <Flex align="center">
-                    <Heading>Fake Reddit</Heading>
-                    <NextLink href="/create-post">
-                        <Link ml="auto">create post</Link>
-                    </NextLink>
-                </Flex>
-                <br />
+                <Heading>Fake Reddit</Heading>
                 {!data && fetching ? (
                     <div>loading...</div>
                 ) : (
@@ -48,7 +46,7 @@ const Index = () => {
                                 borderWidth="1px"
                             >
                                 <UpdootSection post={p} />
-                                <Box>
+                                <Box flex={1}>
                                     <NextLink
                                         href="/post/[id]"
                                         as={`/post/${p.id}`}
@@ -61,7 +59,22 @@ const Index = () => {
                                         </Link>
                                     </NextLink>
                                     <Text>posted by {p.creator.username}</Text>
-                                    <Text mt={4}>{p.textSnippet}</Text>
+                                    <Flex>
+                                        <Text flex={1} mt={4}>
+                                            {p.textSnippet}
+                                        </Text>
+                                        <IconButton
+                                            ml="auto"
+                                            icon={<DeleteIcon />}
+                                            onClick={async () => {
+                                                await deletePost({ id: p.id });
+                                            }}
+                                            isLoading={deletePostFetching}
+                                            variant="ghost"
+                                            aria-label="Delete Post"
+                                            fontSize="24px"
+                                        />
+                                    </Flex>
                                 </Box>
                             </Flex>
                         ))}

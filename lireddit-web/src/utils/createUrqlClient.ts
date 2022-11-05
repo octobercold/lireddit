@@ -12,6 +12,7 @@ import {
     MeDocument,
     MeQuery,
     RegisterMutation,
+    DeletePostMutationVariables,
     VoteMutationVariables,
 } from "../generated/graphql";
 import { betterUpdateQuery } from "./betterUpdateQuery";
@@ -157,6 +158,12 @@ export const createUrqlClient = (
                             });
                             cache.invalidate("Query", "posts", {
                                 limit: 15,
+                            });
+                        },
+                        deletePost: (_result, args, cache) => {
+                            cache.invalidate({
+                                __typename: "Post",
+                                id: (args as DeletePostMutationVariables).id,
                             });
                         },
                         logout: (_result, _args, cache) => {

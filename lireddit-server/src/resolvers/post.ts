@@ -180,7 +180,7 @@ export class PostResolver {
             })
             .returning("*")
             .execute();
-        console.log("result: ", result);
+
         return result.raw[0];
     }
 

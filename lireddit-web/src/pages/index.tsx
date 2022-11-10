@@ -1,6 +1,6 @@
 import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
-import { usePostsQuery } from "../generated/graphql";
+import { useMeQuery, usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import { Button, Flex, Heading, Stack } from "@chakra-ui/react";
 
@@ -13,6 +13,7 @@ const Index = () => {
         cursor: null,
     });
     const [{ data, fetching }] = usePostsQuery({ variables });
+    const [{ data: meData }] = useMeQuery();
 
     if (!fetching && !data) {
         return <div>query failed or there is no data to display</div>;
@@ -27,7 +28,13 @@ const Index = () => {
                 ) : (
                     <Stack spacing={8}>
                         {data.posts.posts.map((p) =>
-                            !p ? null : <Post key={p.id} post={p}></Post>
+                            !p ? null : (
+                                <Post
+                                    key={p.id}
+                                    post={p}
+                                    userId={meData.me.id}
+                                ></Post>
+                            )
                         )}
                     </Stack>
                 )}

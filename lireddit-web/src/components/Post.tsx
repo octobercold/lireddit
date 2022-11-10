@@ -1,4 +1,4 @@
-import { DeleteIcon } from "@chakra-ui/icons";
+import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { Box, Flex, Heading, IconButton, Link, Text } from "@chakra-ui/react";
 import React from "react";
 import {
@@ -10,9 +10,10 @@ import NextLink from "next/link";
 
 interface PostProps {
     post: PostSnippetFragment;
+    userId: number;
 }
 
-const Post: React.FC<PostProps> = ({ post }) => {
+const Post: React.FC<PostProps> = ({ post, userId }) => {
     const [{ fetching: deletePostFetching }, deletePost] =
         useDeletePostMutation();
 
@@ -30,19 +31,38 @@ const Post: React.FC<PostProps> = ({ post }) => {
                     <Text flex={1} mt={4}>
                         {post.textSnippet}
                     </Text>
-                    <IconButton
-                        ml="auto"
-                        icon={<DeleteIcon />}
-                        onClick={async () => {
-                            await deletePost({
-                                id: post.id,
-                            });
-                        }}
-                        isLoading={deletePostFetching}
-                        variant="ghost"
-                        aria-label="Delete Post"
-                        fontSize="24px"
-                    />
+                    {userId !== post.creator.id ? null : (
+                        <Box ml="auto">
+                            <NextLink
+                                href="/post/edit/[id]"
+                                as={`/post/edit/${post.id}`}
+                                passHref
+                            >
+                                <IconButton
+                                    as={Link}
+                                    mr={4}
+                                    icon={<EditIcon />}
+                                    variant="ghost"
+                                    aria-label="Update Post"
+                                    fontSize="24px"
+                                />
+                            </NextLink>
+
+                            <IconButton
+                                ml="auto"
+                                icon={<DeleteIcon />}
+                                onClick={async () => {
+                                    await deletePost({
+                                        id: post.id,
+                                    });
+                                }}
+                                isLoading={deletePostFetching}
+                                variant="ghost"
+                                aria-label="Delete Post"
+                                fontSize="24px"
+                            />
+                        </Box>
+                    )}
                 </Flex>
             </Box>
         </Flex>

@@ -3,7 +3,6 @@ import { withUrqlClient } from "next-urql";
 import { useMeQuery, usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
 import { Button, Flex, Heading, Stack } from "@chakra-ui/react";
-
 import { useState } from "react";
 import Post from "../components/Post";
 

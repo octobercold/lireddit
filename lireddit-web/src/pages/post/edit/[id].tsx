@@ -53,7 +53,7 @@ export const EditPost: React.FC = () => {
                         ...values,
                     });
                     if (!error) {
-                        router.push("/");
+                        router.back();
                     }
                 }}
             >

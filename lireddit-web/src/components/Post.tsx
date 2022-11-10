@@ -1,22 +1,16 @@
-import { DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { Box, Flex, Heading, IconButton, Link, Text } from "@chakra-ui/react";
-import React from "react";
-import {
-    PostSnippetFragment,
-    useDeletePostMutation,
-} from "../generated/graphql";
-import { UpdootSection } from "./UpdootSection";
+import { Box, Flex, Heading, Link, Text } from "@chakra-ui/react";
 import NextLink from "next/link";
+import React from "react";
+import { PostSnippetFragment } from "../generated/graphql";
+import { EditDeletePostButtons } from "./EditDeletePostButtons";
+import { UpdootSection } from "./UpdootSection";
 
 interface PostProps {
     post: PostSnippetFragment;
     userId: number;
 }
 
-const Post: React.FC<PostProps> = ({ post, userId }) => {
-    const [{ fetching: deletePostFetching }, deletePost] =
-        useDeletePostMutation();
-
+const Post: React.FC<PostProps> = ({ post }) => {
     return (
         <Flex p={5} shadow="md" borderWidth="1px">
             <UpdootSection post={post} />
@@ -31,38 +25,12 @@ const Post: React.FC<PostProps> = ({ post, userId }) => {
                     <Text flex={1} mt={4}>
                         {post.textSnippet}
                     </Text>
-                    {userId !== post.creator.id ? null : (
-                        <Box ml="auto">
-                            <NextLink
-                                href="/post/edit/[id]"
-                                as={`/post/edit/${post.id}`}
-                                passHref
-                            >
-                                <IconButton
-                                    as={Link}
-                                    mr={4}
-                                    icon={<EditIcon />}
-                                    variant="ghost"
-                                    aria-label="Update Post"
-                                    fontSize="24px"
-                                />
-                            </NextLink>
-
-                            <IconButton
-                                ml="auto"
-                                icon={<DeleteIcon />}
-                                onClick={async () => {
-                                    await deletePost({
-                                        id: post.id,
-                                    });
-                                }}
-                                isLoading={deletePostFetching}
-                                variant="ghost"
-                                aria-label="Delete Post"
-                                fontSize="24px"
-                            />
-                        </Box>
-                    )}
+                    <Box ml="auto">
+                        <EditDeletePostButtons
+                            id={post.id}
+                            creatorId={post.creator.id}
+                        />
+                    </Box>
                 </Flex>
             </Box>
         </Flex>

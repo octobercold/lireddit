@@ -38,55 +38,61 @@ export class PostResolver {
     @UseMiddleware(isAuth)
     async vote(
         @Arg("postId", () => Int) postId: number,
-        @Arg("value", () => Int) value: number,
+        @Arg("voteValue", () => Int) voteValue: number,
         @Ctx() { req }: MyContext
     ) {
-        const isUpdoot = value !== -1;
-        const realValue = isUpdoot ? 1 : -1;
         const { userId } = req.session;
+
+        const post = await Post.findOne({ where: { id: postId } });
+        if (!post) return false;
+
         const updoot = await Updoot.findOneBy({
             postId: postId,
             userId: userId,
         });
 
-        if (updoot && updoot.value !== realValue) {
-            //if user did vote but they want to change their vote
+        console.log("voteValue: ", voteValue);
+
+        let newPoints: number;
+        if (updoot && updoot.value !== voteValue) {
+            //if user has voted and wantch to change his vote
+            newPoints = post.points + voteValue - updoot.value;
             await dataSource.transaction(async (tm) => {
-                //2* realValue to account for previous vote
                 await tm.query(
                     `
-                    update updoot
-                    set value = $1
-                    where "postId" = $2 and "userId" = $3
-                    `,
-                    [realValue, postId, userId]
+                update updoot
+                set value = $1
+                where "postId" = $2 and "userId" = $3
+                `,
+                    [voteValue, postId, userId]
                 );
                 await tm.query(
                     `
                     update post
-                    set points = points + $1
+                    set points = $1
                     where id = $2;
                     `,
-                    [2 * realValue, postId]
+                    [newPoints, postId]
                 );
             });
-        } else if (!updoot) {
-            //user did not vote
+        } else {
+            // if user has not voted yet
+            newPoints = post.points + voteValue;
             await dataSource.transaction(async (tm) => {
                 await tm.query(
                     `
                     insert into updoot ("userId", "postId", "value")
                     values ($1,$2,$3);
                     `,
-                    [userId, postId, realValue]
+                    [userId, postId, voteValue]
                 );
                 await tm.query(
                     `
                     update post
-                    set points = points + $1
+                    set points = $1
                     where id = $2;
                     `,
-                    [realValue, postId]
+                    [newPoints, postId]
                 );
             });
         }

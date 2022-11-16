@@ -1,5 +1,5 @@
 import { Box, Button, Flex, Heading, Link } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React from "react";
 import NextLink from "next/link";
 import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 
@@ -9,12 +9,6 @@ const NavBar: React.FC = () => {
 
     let body = null;
 
-    // useEffect(() => {
-    //     if (!hasMounted && !fetching && !data.me) {
-    //         setHasMounted(true);
-    //         resendMeQuery({ requestPolicy: "network-only" });
-    //     }
-    // }, [hasMounted, resendMeQuery, fetching, data]);
     if (fetching) {
         return body;
     } else if (!data?.me) {
@@ -56,7 +50,7 @@ const NavBar: React.FC = () => {
             <Flex flex={1} maxW={800} align="center" margin="auto">
                 <NextLink href="/" passHref>
                     <Link>
-                        <Heading>LiReddit</Heading>
+                        <Heading>Fake Reddit</Heading>
                     </Link>
                 </NextLink>
                 <Box ml={"auto"}>{body}</Box>

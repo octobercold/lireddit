@@ -111,7 +111,7 @@ export const createUrqlClient = (
                 updates: {
                     Mutation: {
                         vote: (_result, args, cache) => {
-                            const { postId, value } =
+                            const { postId, voteValue } =
                                 args as VoteMutationVariables;
                             const data = cache.readFragment(
                                 gql`
@@ -124,10 +124,9 @@ export const createUrqlClient = (
                                 { id: postId } as any
                             );
                             if (data) {
-                                if (data.voteStatus === value) return;
+                                if (data.voteStatus === voteValue) return;
                                 const newPoints =
-                                    data.points +
-                                    (!data.voteStatus ? 1 : 2) * value;
+                                    data.points - data.voteStatus + voteValue;
                                 cache.writeFragment(
                                     gql`
                                         fragment __ on Post {
@@ -139,7 +138,7 @@ export const createUrqlClient = (
                                     {
                                         id: postId,
                                         points: newPoints,
-                                        voteStatus: value,
+                                        voteStatus: voteValue,
                                     }
                                 );
                             }
@@ -156,9 +155,6 @@ export const createUrqlClient = (
                                     fi.arguments
                                 );
                             });
-                            cache.invalidate("Query", "posts", {
-                                limit: 15,
-                            });
                         },
                         deletePost: (_result, args, cache) => {
                             cache.invalidate({
@@ -173,6 +169,17 @@ export const createUrqlClient = (
                                 _result,
                                 () => ({ me: null })
                             );
+                            const allFields = cache.inspectFields("Query");
+                            const fieldInfos = allFields.filter(
+                                (info) => info.fieldName === "posts"
+                            );
+                            fieldInfos.forEach((fi) => {
+                                cache.invalidate(
+                                    "Query",
+                                    "posts",
+                                    fi.arguments
+                                );
+                            });
                         },
                         login: (_result, _args, cache) => {
                             betterUpdateQuery<LoginMutation, MeQuery>(
@@ -189,6 +196,17 @@ export const createUrqlClient = (
                                     }
                                 }
                             );
+                            const allFields = cache.inspectFields("Query");
+                            const fieldInfos = allFields.filter(
+                                (info) => info.fieldName === "posts"
+                            );
+                            fieldInfos.forEach((fi) => {
+                                cache.invalidate(
+                                    "Query",
+                                    "posts",
+                                    fi.arguments
+                                );
+                            });
                         },
                         register: (_result, _args, cache) => {
                             betterUpdateQuery<RegisterMutation, MeQuery>(

@@ -2,7 +2,7 @@ import { createUrqlClient } from "../utils/createUrqlClient";
 import { withUrqlClient } from "next-urql";
 import { useMeQuery, usePostsQuery } from "../generated/graphql";
 import { Layout } from "../components/Layout";
-import { Button, Flex, Heading, Stack } from "@chakra-ui/react";
+import { Button, Flex, Stack } from "@chakra-ui/react";
 import { useState } from "react";
 import Post from "../components/Post";
 
@@ -21,7 +21,6 @@ const Index = () => {
     return (
         <Layout>
             <>
-                <Heading>Fake Reddit</Heading>
                 {!data && fetching ? (
                     <div>loading...</div>
                 ) : (
@@ -31,7 +30,7 @@ const Index = () => {
                                 <Post
                                     key={p.id}
                                     post={p}
-                                    userId={meData.me.id}
+                                    userId={meData?.me?.id}
                                 ></Post>
                             )
                         )}
